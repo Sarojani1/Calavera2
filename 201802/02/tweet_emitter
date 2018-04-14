@@ -1,0 +1,53 @@
+http.createServer(function(request, response) {
+
+    var uri = url.parse(request.url).pathname;
+
+    if(uri === "/stream") {
+
+     
+
+        var listener = tweet_emitter.addListener("tweets", function(tweets) {
+
+            response.sendHeader(200, { "Content-Type" : "text/plain" });
+
+            response.write(JSON.stringify(tweets));
+
+            response.close();
+
+             
+
+            clearTimeout(timeout);
+
+        });
+
+         
+
+        var timeout = setTimeout(function() {
+
+            response.sendHeader(200, { "Content-Type" : "text/plain" });
+
+            response.write(JSON.stringify([]));
+
+            response.close();
+
+             
+
+            tweet_emitter.removeListener(listener);
+
+        }, 10000);
+
+         
+
+    }
+
+    else {
+
+        load_static_file(uri, response);
+
+    }
+
+}).listen(8013);
+
+ 
+
+sys.puts("Server running at http://localhost:8013/");
