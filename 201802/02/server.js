@@ -1,33 +1,23 @@
-var sys = require("sys"),
-    http = require("http"),
-    url = require("url"),
-    path = require("path"),
-    fs = require("fs");
-     
-http.createServer(function(request, response) {
-    var uri = url.parse(request.url).pathname;
-    var filename = path.join(process.cwd(), uri);
-    path.exists(filename, function(exists) {
-        if(!exists) {
-            response.sendHeader(404, {"Content-Type": "text/plain"});
-            response.write("404 Not Found\n");
-            response.close();
-            return;
-        }
-         
-        fs.readFile(filename, "binary", function(err, file) {
-            if(err) {
-                response.sendHeader(500, {"Content-Type": "text/plain"});
-                response.write(err + "\n");
-                response.close();
-                return;
-            }
-             
-            response.sendHeader(200);
-            response.write(file, "binary");
-            response.close();
-        });
-    });
-}).listen(8080);
- 
-sys.puts("Server running at http://localhost:8013/");
+var express = require("express");
+ var app = express();
+
+ /* serves main page */
+ app.get("/", function(req, res) {
+    res.sendfile('index.htm')
+ });
+
+  app.post("/user/add", function(req, res) { 
+	/* some server side logic */
+	res.send("OK");
+  });
+
+ /* serves all the static files */
+ app.get(/^(.+)$/, function(req, res){ 
+     console.log('static file request : ' + req.params);
+     res.sendfile( __dirname + req.params[0]); 
+ });
+
+ var port = process.env.PORT || 5000;
+ app.listen(port, function() {
+   console.log("Listening on " + port);
+ });
